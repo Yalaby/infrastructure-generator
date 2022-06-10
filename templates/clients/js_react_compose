@@ -1,0 +1,12 @@
+  {NODE_NAME}:
+    image: {IMAGE_NAME}
+    restart: always
+    ports:
+      - {DOCKERBRIDGE_PORT}:3000
+    expose:
+      - {EXPOSED_PORT}
+    environment:
+      REACT_APP_PROTOCOL: http
+      REACT_APP_API_URL: localhost
+      REACT_APP_API_PORT: {GATEWAY_PORT}
+

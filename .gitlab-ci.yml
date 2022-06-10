@@ -1,0 +1,12 @@
+image: python:3.11.0b1-slim
+
+stages:
+  - test
+
+test:
+  script:
+    - python -m unittest tests/unit/test_dc.py
+    - python -m unittest tests/unit/test_dcp.py
+    - python -m unittest tests/unit/test_dp.py
+    - python -m unittest tests/unit/test_pm.py
+    - python -m unittest tests/integration/test_dc_pm_dp_dcp.py

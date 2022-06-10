@@ -1,0 +1,7 @@
+      DB_TYPE: {DB_TYPE}
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      DB_HOST: {DB_HOST}
+      DB_PORT: {DB_PORT}
+      DB_NAME: {DB_NAME}
+      DB_COLLECTION: {DB_COLLECTION}

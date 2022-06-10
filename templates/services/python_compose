@@ -1,0 +1,3 @@
+  {NODE_NAME}:
+    image: {IMAGE_NAME}
+    restart: always

@@ -1,0 +1,16 @@
+CLIENTS_TEMPLATES_PATH = 'templates/clients'
+SERVICES_TEMPLATES_PATH = 'templates/services'
+GATEWAYS_TEMPLATES_PATH = 'templates/gateways'
+DATABASES_TEMPLATES_PATH = 'templates/databases'
+DOCKER_COMPOSE_TEMPLATE = 'templates/docker-compose.yml'
+ZOOKEEPER_TEMPLATE = 'templates/infrastructure/zookeeper'
+KAFKA_TEMPLATE = 'templates/infrastructure/kafka'
+KAFKA_INIT_TEMPLATE = 'templates/infrastructure/kafka-init'
+KAFKA_TOPIC_TEMPLATE = 'templates/infrastructure/kafka-topic'
+KAFKA_ENVIRONMENT_TEMPLATE = 'templates/infrastructure/kafka_environment'
+KAFKA_TOPIC_REPLICATION_FACTOR = 1
+KAFKA_TOPIC_PARTITIONS = 1
+GATEWAY_PORT_START = 5000
+CLIENTS_PORT_START = 3000
+DATABASE_PORT_START = 27017
+ALLOWED_OUTER_HOSTS = '0.0.0.0'  # specify when running in server mode

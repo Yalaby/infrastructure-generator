@@ -1,0 +1,13 @@
+  {NODE_NAME}:
+    image: mongo:5.0.8
+    restart: always
+    ports:
+      - {DOCKERBRIDGE_PORT}:27017
+    expose: 
+      - {EXPOSED_PORT}
+    volumes:
+      - {STORAGE_PATH}:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE={DB_NAME}
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root

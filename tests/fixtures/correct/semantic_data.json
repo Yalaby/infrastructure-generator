@@ -1,0 +1,40 @@
+{
+  "clients": [
+    {
+      "name": "user_interface",
+      "language": "js_react",
+      "connects": "gateway_1"
+    }
+  ],
+  "gateways": [
+    {
+      "name": "gateway_1",
+      "language": "python",
+      "connects":["payment", "warehouse"]
+    }
+  ],
+  "services": [
+    {
+      "name": "marketplace_admin",
+      "language": "python",
+      "connects":["gateway_1", "payment", "warehouse"]
+    },
+    {
+      "name": "warehouse",
+      "language": "python",
+      "connects":["marketplace_admin"]
+    },
+    {
+      "name": "payment",
+      "language": "python",
+      "connects":["gateway_1", "marketplace_admin"]
+    }
+  ],
+  "databases": [
+    {
+      "name": "database1",
+      "dbtype": "mongodb",
+      "connects": ["payment", "warehouse"]
+    }
+  ]
+}

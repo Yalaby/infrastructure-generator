@@ -1,0 +1,7 @@
+  {NODE_NAME}:
+    image: {IMAGE_NAME}
+    restart: always
+    ports:
+      - {DOCKERBRIDGE_PORT}:5000
+    expose:
+      - {EXPOSED_PORT}

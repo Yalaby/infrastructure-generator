@@ -1,0 +1,8 @@
+  zookeeper:
+    image: confluentinc/cp-zookeeper:6.2.4
+    restart: always
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+

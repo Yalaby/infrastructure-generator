@@ -1,0 +1,147 @@
+version: '2.1'
+services:
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:6.2.4
+    restart: always
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:6.2.4
+    restart: always
+    depends_on:
+      - zookeeper
+    expose:
+      - '29092'
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: '1'
+      KAFKA_MIN_INSYNC_REPLICAS: '1'
+
+  init-kafka:
+    image: confluentinc/cp-kafka:6.2.4
+    depends_on:
+      - kafka
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka:29092 --list
+
+      echo -e 'Creating kafka topics'
+
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic gateway-1-payment-topic --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic gateway-1-warehouse-topic --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic marketplace-admin-gateway-1-topic --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic marketplace-admin-payment-topic --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic marketplace-admin-warehouse-topic --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic warehouse-marketplace-admin-topic --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic payment-gateway-1-topic --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic payment-marketplace-admin-topic --replication-factor 1 --partitions 1"
+
+  database1:
+    image: mongo:5.0.8
+    restart: always
+    ports:
+      - 27017:27017
+    expose: 
+      - 27017
+    volumes:
+      - /Users/konstantinvlasov/Desktop/Университет/ВКРМ/infrastructure_generator/tests/fixtures/temp_dockerfiles_and_compose_creation/database1:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=database1
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=root
+
+  marketplace_admin:
+    image: marketplace_admin:latest
+    restart: always
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 29092
+      MARKETPLACE_ADMIN_GATEWAY_1_TOPIC: marketplace-admin-gateway-1-topic
+      MARKETPLACE_ADMIN_PAYMENT_TOPIC: marketplace-admin-payment-topic
+      MARKETPLACE_ADMIN_WAREHOUSE_TOPIC: marketplace-admin-warehouse-topic
+      WAREHOUSE_MARKETPLACE_ADMIN_TOPIC: warehouse-marketplace-admin-topic
+      PAYMENT_MARKETPLACE_ADMIN_TOPIC: payment-marketplace-admin-topic
+
+  warehouse:
+    image: warehouse:latest
+    restart: always
+    depends_on:
+      - kafka
+      - database1
+    environment:
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 29092
+      WAREHOUSE_MARKETPLACE_ADMIN_TOPIC: warehouse-marketplace-admin-topic
+      GATEWAY_1_WAREHOUSE_TOPIC: gateway-1-warehouse-topic
+      MARKETPLACE_ADMIN_WAREHOUSE_TOPIC: marketplace-admin-warehouse-topic
+      DB_TYPE: mongodb
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      DB_HOST: database1
+      DB_PORT: 27017
+      DB_NAME: database1
+      DB_COLLECTION: database1
+
+  payment:
+    image: payment:latest
+    restart: always
+    depends_on:
+      - kafka
+      - database1
+    environment:
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 29092
+      PAYMENT_GATEWAY_1_TOPIC: payment-gateway-1-topic
+      PAYMENT_MARKETPLACE_ADMIN_TOPIC: payment-marketplace-admin-topic
+      GATEWAY_1_PAYMENT_TOPIC: gateway-1-payment-topic
+      MARKETPLACE_ADMIN_PAYMENT_TOPIC: marketplace-admin-payment-topic
+      DB_TYPE: mongodb
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      DB_HOST: database1
+      DB_PORT: 27017
+      DB_NAME: database1
+      DB_COLLECTION: database1
+
+  gateway_1:
+    image: gateway_1:latest
+    restart: always
+    ports:
+      - 5000:5000
+    expose:
+      - 5000
+    depends_on:
+      - kafka
+    environment:
+      KAFKA_HOST: kafka
+      KAFKA_PORT: 29092
+      GATEWAY_1_PAYMENT_TOPIC: gateway-1-payment-topic
+      GATEWAY_1_WAREHOUSE_TOPIC: gateway-1-warehouse-topic
+      ALLOWED_OUTER_HOSTS: 0.0.0.0
+      MARKETPLACE_ADMIN_GATEWAY_1_TOPIC: marketplace-admin-gateway-1-topic
+      PAYMENT_GATEWAY_1_TOPIC: payment-gateway-1-topic
+
+  user_interface:
+    image: user_interface:latest
+    restart: always
+    ports:
+      - 3000:3000
+    expose:
+      - 3000
+    environment:
+      REACT_APP_PROTOCOL: http
+      REACT_APP_API_URL: localhost
+      REACT_APP_API_PORT: 5000
+
+
